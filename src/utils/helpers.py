@@ -174,8 +174,10 @@ def train_val_test_split(
     if stratify and y is not None:
         try:
             # Only stratify if we have reasonable number of samples per class
-            unique_labels = np.unique(y)
-            if len(unique_labels) < 20:
+            unique_labels, counts = np.unique(y, return_counts=True)
+            min_count = counts.min()
+            # Need at least 2 samples per class for stratified splitting
+            if len(unique_labels) < 20 and min_count >= 2:
                 stratify_arg = y
         except (TypeError, ValueError):
             pass
@@ -197,8 +199,10 @@ def train_val_test_split(
         stratify_arg_temp = None
         if stratify and y_temp is not None:
             try:
-                unique_labels = np.unique(y_temp)
-                if len(unique_labels) < 20:
+                unique_labels, counts = np.unique(y_temp, return_counts=True)
+                min_count = counts.min()
+                # Need at least 2 samples per class for stratified splitting
+                if len(unique_labels) < 20 and min_count >= 2:
                     stratify_arg_temp = y_temp
             except (TypeError, ValueError):
                 pass
