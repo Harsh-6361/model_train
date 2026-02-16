@@ -1,0 +1,41 @@
+stages:
+  prepare_data:
+    cmd: python scripts/prepare_data.py --input data/raw/ --output data/processed/ --config configs/data_config.yaml --split
+    deps:
+      - data/raw/
+      - scripts/prepare_data.py
+      - configs/data_config.yaml
+    outs:
+      - data/processed/
+    params:
+      - data_config.yaml:
+          - preprocessing
+          - split
+          
+  train_yolo:
+    cmd: python scripts/train.py --model yolo --config configs/yolo_config.yaml --data data/processed/data.yaml
+    deps:
+      - data/processed/
+      - src/models/yolo_model.py
+      - configs/yolo_config.yaml
+      - scripts/train.py
+    outs:
+      - artifacts/models/yolo/:
+          cache: false
+    metrics:
+      - artifacts/evaluation/evaluation_results.json:
+          cache: false
+    plots:
+      - artifacts/metrics/training_curves.csv:
+          x: epoch
+          y: mAP
+          
+  evaluate:
+    cmd: python scripts/evaluate.py --model artifacts/models/yolo/weights/best.pt --test-data data/processed/data.yaml
+    deps:
+      - artifacts/models/yolo/weights/best.pt
+      - data/processed/
+      - scripts/evaluate.py
+    metrics:
+      - artifacts/evaluation/evaluation_results.json:
+          cache: false

@@ -1,0 +1,43 @@
+large_scale_training:
+  # Hardware settings
+  hardware:
+    gpus: "auto"  # auto-detect or specify [0,1,2,3]
+    precision: "mixed"  # float32, float16, mixed, bf16
+    compile_model: true  # torch.compile for PyTorch 2.0+
+    
+  # Memory optimization
+  memory:
+    gradient_accumulation_steps: 4
+    gradient_checkpointing: true
+    pin_memory: true
+    prefetch_factor: 2
+    
+  # Data pipeline
+  data_pipeline:
+    num_workers: 8
+    persistent_workers: true
+    streaming: true  # Enable for datasets > RAM
+    cache_strategy: "disk"  # none, memory, disk
+    shard_size: 10000  # images per shard
+    
+  # Training loop
+  training_loop:
+    checkpoint_interval: 1000  # steps
+    validation_interval: 5000  # steps
+    log_interval: 100  # steps
+    max_steps: null  # null = use epochs
+    epochs: 100
+    
+  # Auto-scaling
+  auto_scaling:
+    auto_batch_size: true  # Find optimal batch size
+    auto_lr: true  # Linear scaling rule
+    base_batch_size: 64
+    base_lr: 0.001
+    
+  # Fault tolerance
+  fault_tolerance:
+    auto_resume: true
+    checkpoint_dir: "artifacts/checkpoints/"
+    keep_last_n: 5
+    save_on_interrupt: true
