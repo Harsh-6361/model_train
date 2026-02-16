@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Image Data Schema",
+  "type": "object",
+  "properties": {
+    "required_structure": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "type": "array",
+          "items": {
+            "enum": ["jpg", "jpeg", "png", "bmp"]
+          }
+        },
+        "min_size": {
+          "type": "object",
+          "properties": {
+            "width": {"type": "integer"},
+            "height": {"type": "integer"}
+          }
+        },
+        "max_size": {
+          "type": "object",
+          "properties": {
+            "width": {"type": "integer"},
+            "height": {"type": "integer"}
+          }
+        },
+        "channels": {
+          "type": "integer",
+          "enum": [1, 3, 4]
+        }
+      }
+    }
+  }
+}

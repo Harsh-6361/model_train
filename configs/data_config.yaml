@@ -1,0 +1,25 @@
+data:
+  tabular:
+    path: "data/sample/iris.csv"
+    schema: "configs/schemas/tabular_schema.json"
+    target_column: "species"
+    feature_columns: null  # null = all except target
+    train_split: 0.7
+    validation_split: 0.15
+    test_split: 0.15
+    preprocessing:
+      normalize: true
+      handle_missing: "mean"
+      categorical_encoding: "onehot"
+  
+  image:
+    path: "data/sample/images/"
+    schema: "configs/schemas/image_schema.json"
+    image_size: [224, 224]
+    channels: 3
+    augmentation:
+      horizontal_flip: true
+      rotation_range: 15
+      normalize: true
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
