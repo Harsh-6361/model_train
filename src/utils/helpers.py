@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import torch
+from sklearn.model_selection import train_test_split
 
 
 def set_seed(seed: int = 42) -> None:
@@ -164,8 +165,6 @@ def train_val_test_split(
     Raises:
         ValueError: If ratios don't sum to 1.0
     """
-    from sklearn.model_selection import train_test_split
-    
     if not np.isclose(train_ratio + val_ratio + test_ratio, 1.0):
         raise ValueError("Split ratios must sum to 1.0")
     
