@@ -216,6 +216,9 @@ class Trainer:
         logger.info(f"Device: {self.device}")
         logger.info(f"Model parameters: {self.model.count_parameters():,}")
         
+        # Store epochs for callbacks
+        self.epochs = epochs
+        
         try:
             for epoch in range(1, epochs + 1):
                 self.current_epoch = epoch

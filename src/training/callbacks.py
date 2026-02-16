@@ -217,7 +217,7 @@ class MetricsLogger(Callback):
         self._epochs_since_save += 1
         
         # Save to file periodically or on final epoch
-        if self._epochs_since_save >= self.save_interval or epoch == trainer.epochs - 1:
+        if self._epochs_since_save >= self.save_interval or epoch == trainer.epochs:
             with open(self.metrics_file, 'w') as f:
                 json.dump(self.epoch_metrics, f, indent=2)
             self._epochs_since_save = 0

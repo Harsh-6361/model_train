@@ -453,4 +453,10 @@ After setup:
 
 ---
 
-**Need help?** Open an issue or check the documentation in `docs/`
+**Additional Documentation:**
+- [SPEC.md](docs/SPEC.md) - Product specification
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - System architecture details
+- [API.md](docs/API.md) - API reference and examples
+- [CODE_ANALYSIS.md](CODE_ANALYSIS.md) - Code analysis and verification
+
+**Need help?** Open an issue on GitHub or review the documentation above.
