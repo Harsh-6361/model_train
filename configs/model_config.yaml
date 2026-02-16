@@ -1,0 +1,28 @@
+models:
+  tabular:
+    type: "mlp"
+    input_size: null  # Auto-detected from data
+    hidden_layers: [256, 128, 64]
+    output_size: null  # Auto-detected from data
+    dropout: 0.3
+    activation: "relu"  # relu, tanh, sigmoid, gelu
+    batch_norm: true
+    task: "classification"  # classification, regression
+    
+  vision:
+    type: "resnet18"  # resnet18, resnet34, resnet50, efficientnet_b0, vit
+    pretrained: true
+    num_classes: 10
+    freeze_backbone: false
+    dropout: 0.5
+    
+  yolo:
+    version: "v8"  # v5, v8
+    size: "n"  # nano (n), small (s), medium (m), large (l), xlarge (x)
+    pretrained: true
+    num_classes: null  # Auto-detected
+    
+# Model registry settings
+registry:
+  save_format: "pytorch"  # pytorch, onnx, torchscript
+  model_path: "artifacts/models/"

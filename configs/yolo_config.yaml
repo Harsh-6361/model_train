@@ -1,0 +1,62 @@
+yolo:
+  # Model configuration
+  version: "v8"  # v5, v8
+  model_size: "n"  # nano (n), small (s), medium (m), large (l), xlarge (x)
+  pretrained: true
+  weights: null  # Path to custom weights, null for pretrained
+  
+  # Training configuration
+  training:
+    img_size: 640
+    batch_size: 16
+    epochs: 300
+    patience: 50
+    
+    # Optimizer
+    optimizer: "AdamW"  # SGD, Adam, AdamW
+    lr0: 0.01  # Initial learning rate
+    lrf: 0.01  # Final learning rate (lr0 * lrf)
+    momentum: 0.937
+    weight_decay: 0.0005
+    warmup_epochs: 3
+    warmup_momentum: 0.8
+    warmup_bias_lr: 0.1
+    
+    # Data augmentation
+    augmentation:
+      hsv_h: 0.015  # HSV-Hue augmentation
+      hsv_s: 0.7    # HSV-Saturation augmentation
+      hsv_v: 0.4    # HSV-Value augmentation
+      degrees: 0.0  # Rotation
+      translate: 0.1  # Translation
+      scale: 0.5    # Scaling
+      shear: 0.0    # Shear
+      perspective: 0.0  # Perspective
+      flipud: 0.0   # Flip up-down
+      fliplr: 0.5   # Flip left-right
+      mosaic: 1.0   # Mosaic augmentation
+      mixup: 0.0    # MixUp augmentation
+      copy_paste: 0.0  # Copy-paste augmentation
+      
+  # Detection configuration
+  detection:
+    conf_threshold: 0.25  # Confidence threshold
+    iou_threshold: 0.45   # NMS IoU threshold
+    max_det: 300          # Maximum detections per image
+    classes: null         # Filter by class, null for all
+    agnostic_nms: false   # Class-agnostic NMS
+    
+  # Validation configuration
+  validation:
+    save_json: false
+    save_hybrid: false
+    conf: null
+    iou: 0.6
+    
+  # Export configuration
+  export:
+    formats: ["onnx"]  # onnx, torchscript, coreml, tflite
+    simplify: true     # Simplify ONNX model
+    opset: 12          # ONNX opset version
+    dynamic: false     # Dynamic input shapes
+    half: false        # FP16 quantization

@@ -1,0 +1,42 @@
+deployment:
+  # API Server settings
+  api:
+    host: "0.0.0.0"
+    port: 8000
+    workers: 1
+    reload: false
+    log_level: "info"
+    
+  # Model serving
+  serving:
+    model_path: "artifacts/models/best.pt"
+    model_type: "tabular"  # tabular, vision, yolo
+    batch_size: 1
+    timeout: 30
+    
+  # Inference optimization
+  optimization:
+    use_jit: false
+    use_onnx: false
+    quantization: false
+    
+  # Monitoring
+  monitoring:
+    prometheus:
+      enabled: true
+      port: 9090
+    health_check:
+      enabled: true
+      interval: 30
+      
+  # Cors settings
+  cors:
+    enabled: true
+    allow_origins: ["*"]
+    allow_methods: ["*"]
+    allow_headers: ["*"]
+    
+  # Rate limiting
+  rate_limit:
+    enabled: false
+    requests_per_minute: 60

@@ -1,0 +1,50 @@
+large_scale:
+  # Hardware configuration
+  hardware:
+    gpus: "auto"  # auto, 0, 1, [0,1], etc.
+    precision: "mixed"  # full (fp32), mixed (fp16), half (fp16)
+    
+  # Distributed training
+  distributed:
+    enabled: false
+    backend: "nccl"  # nccl, gloo
+    init_method: "env://"
+    world_size: 1
+    rank: 0
+    
+  # Memory optimization
+  memory:
+    gradient_accumulation_steps: 4
+    gradient_checkpointing: false
+    max_batch_size: null  # Auto-detect
+    offload_optimizer: false
+    
+  # Data pipeline optimization
+  data_pipeline:
+    num_workers: 8
+    streaming: false  # Stream data from disk/cloud
+    prefetch_factor: 2
+    persistent_workers: true
+    pin_memory: true
+    
+  # Checkpointing and fault tolerance
+  fault_tolerance:
+    auto_resume: true
+    checkpoint_interval: 1000  # Save every N steps
+    checkpoint_dir: "artifacts/models/checkpoints/"
+    keep_n_checkpoints: 3
+    
+  # Profiling
+  profiling:
+    enabled: false
+    schedule:
+      wait: 1
+      warmup: 1
+      active: 3
+      repeat: 2
+    
+  # Logging for large-scale
+  logging:
+    log_every_n_steps: 100
+    log_gpu_memory: true
+    log_throughput: true
