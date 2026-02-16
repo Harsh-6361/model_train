@@ -310,7 +310,7 @@ class YOLODataAdapter:
         
         return 0  # Default
     
-    def validate_annotations(self) -> Dict[str, any]:
+    def validate_annotations(self) -> Dict[str, Any]:
         """
         Validate annotations
         

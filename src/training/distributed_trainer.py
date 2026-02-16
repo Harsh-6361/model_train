@@ -87,7 +87,7 @@ class DistributedTrainer:
         # Metrics
         self.global_step = 0
         self.epoch = 0
-        self.best_metric = float('-inf')
+        self.best_metric = float('inf')  # For loss (lower is better)
     
     def _setup_device(self) -> torch.device:
         """Setup device for training"""
