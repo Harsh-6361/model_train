@@ -1,0 +1,53 @@
+name: Manual Training
+
+on:
+  workflow_dispatch:
+    inputs:
+      model_type:
+        description: 'Model type'
+        required: true
+        default: 'tabular'
+        type: choice
+        options:
+          - tabular
+          - vision
+          - yolo
+      epochs:
+        description: 'Number of epochs'
+        required: false
+        default: '100'
+      prepare_data:
+        description: 'Prepare sample data'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Prepare data
+        if: ${{ inputs.prepare_data }}
+        run: |
+          python scripts/prepare_data.py --type ${{ inputs.model_type }}
+      
+      - name: Run training
+        run: |
+          python scripts/train.py --model ${{ inputs.model_type }}
+      
+      - name: Upload model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: model-${{ github.run_id }}
+          path: artifacts/models/

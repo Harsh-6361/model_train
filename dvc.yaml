@@ -1,0 +1,33 @@
+stages:
+  prepare:
+    cmd: python scripts/prepare_data.py --type tabular
+    deps:
+      - scripts/prepare_data.py
+    outs:
+      - data/sample/tabular/sample_data.csv
+  
+  train:
+    cmd: python scripts/train.py --model tabular
+    deps:
+      - data/sample/tabular/sample_data.csv
+      - src/
+      - configs/
+    params:
+      - training_config.yaml:
+          - training.epochs
+          - training.batch_size
+          - training.learning_rate
+    outs:
+      - artifacts/models/best.pt
+    metrics:
+      - artifacts/metrics/metrics.json:
+          cache: false
+  
+  evaluate:
+    cmd: python scripts/evaluate.py --model tabular --checkpoint artifacts/models/best.pt
+    deps:
+      - artifacts/models/best.pt
+      - data/sample/tabular/sample_data.csv
+    metrics:
+      - artifacts/metrics/eval_results.json:
+          cache: false
