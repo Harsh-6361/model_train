@@ -5,9 +5,9 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 from PIL import Image
-from sklearn.model_selection import train_test_split
 
 from ..validators.schema_validator import SchemaValidator
+from ...utils.helpers import train_val_test_split
 
 
 class ImageAdapter:
@@ -118,19 +118,29 @@ class ImageAdapter:
             results['warnings'].append("No schema provided, skipping validation")
             return results
         
-        # Validate each sampled image
+        # Validate each sampled image - optimized with early stopping
+        errors_found = []
+        warnings_found = []
+        
         for img_path in sample_paths:
             validation = self.validator.validate_image(img_path)
             
             if not validation['valid']:
                 results['valid'] = False
-                results['errors'].extend([
+                errors_found.extend([
                     f"{img_path.name}: {err}" for err in validation['errors']
                 ])
+                # Early stop if we have too many errors (sample is representative)
+                if len(errors_found) > 5:
+                    errors_found.append("... (additional errors truncated)")
+                    break
             
-            results['warnings'].extend([
+            warnings_found.extend([
                 f"{img_path.name}: {warn}" for warn in validation['warnings']
             ])
+        
+        results['errors'] = errors_found
+        results['warnings'] = warnings_found[:10]  # Limit warnings to keep output manageable
         
         return results
     
@@ -155,38 +165,23 @@ class ImageAdapter:
         if not self.image_paths:
             raise ValueError("Data not loaded. Call load() first.")
         
-        if not np.isclose(train_ratio + val_ratio + test_ratio, 1.0):
-            raise ValueError("Split ratios must sum to 1.0")
-        
-        # First split: train and temp (val + test)
-        temp_ratio = val_ratio + test_ratio
-        paths_train, paths_temp, labels_train, labels_temp = train_test_split(
+        # Use common split utility
+        splits = train_val_test_split(
             self.image_paths,
             self.labels,
-            test_size=temp_ratio,
+            train_ratio=train_ratio,
+            val_ratio=val_ratio,
+            test_ratio=test_ratio,
             random_state=random_state,
-            stratify=self.labels
+            stratify=True
         )
         
-        # Second split: val and test
-        if test_ratio > 0:
-            val_ratio_adjusted = val_ratio / temp_ratio
-            paths_val, paths_test, labels_val, labels_test = train_test_split(
-                paths_temp,
-                labels_temp,
-                test_size=(1 - val_ratio_adjusted),
-                random_state=random_state,
-                stratify=labels_temp
-            )
-        else:
-            paths_val, labels_val = paths_temp, labels_temp
-            paths_test, labels_test = [], []
+        # Handle empty test set case
+        if splits['test'][0] is None:
+            splits['test'] = ([], [])
         
-        return {
-            'train': (paths_train, labels_train),
-            'val': (paths_val, labels_val),
-            'test': (paths_test, labels_test)
-        }
+        return splits
+
     
     def get_info(self) -> Dict[str, Any]:
         """Get information about the loaded data.

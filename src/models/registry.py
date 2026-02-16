@@ -31,6 +31,15 @@ class ModelRegistry:
                     'total_models': 0
                 }
             }
+        
+        # Build index for fast lookups
+        self._build_index()
+    
+    def _build_index(self) -> None:
+        """Build index for fast model lookups."""
+        self._model_id_index = {}
+        for idx, model in enumerate(self.registry['models']):
+            self._model_id_index[model['model_id']] = idx
     
     def register_model(
         self,
@@ -73,6 +82,9 @@ class ModelRegistry:
         self.registry['models'].append(entry)
         self.registry['metadata']['total_models'] += 1
         
+        # Update index
+        self._model_id_index[model_id] = len(self.registry['models']) - 1
+        
         # Save registry
         self._save()
         
@@ -87,9 +99,10 @@ class ModelRegistry:
         Returns:
             Model entry dictionary or None
         """
-        for model in self.registry['models']:
-            if model['model_id'] == model_id:
-                return model
+        # Use index for O(1) lookup
+        idx = self._model_id_index.get(model_id)
+        if idx is not None:
+            return self.registry['models'][idx]
         return None
     
     def get_latest_model(

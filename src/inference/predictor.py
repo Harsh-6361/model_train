@@ -190,9 +190,9 @@ class Predictor:
         
         # Format results
         results = []
-        for i in range(len(preds)):
-            pred_class = int(preds[i])
-            pred_probs = probs[i].tolist()
+        for i, (pred_class, pred_probs) in enumerate(zip(preds, probs)):
+            pred_class = int(pred_class)
+            pred_probs = pred_probs.tolist()
             
             result_dict = {
                 'predicted_class': pred_class,
