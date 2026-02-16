@@ -1,0 +1,19 @@
+model:
+  type: "tabular"  # or "vision"
+  name: "mlp_classifier"
+  architecture:
+    input_dim: null  # auto-detect from data
+    hidden_layers: [128, 64, 32]
+    dropout: 0.3
+    activation: "relu"
+    output_dim: null  # auto-detect from data
+  pretrained: null  # for vision: "resnet18", "resnet50", "efficientnet_b0"
+  
+vision_model:
+  type: "vision"
+  name: "resnet_classifier"
+  architecture:
+    backbone: "resnet18"
+    pretrained: true
+    num_classes: null  # auto-detect
+    dropout: 0.5
