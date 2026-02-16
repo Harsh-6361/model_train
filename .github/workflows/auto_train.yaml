@@ -16,12 +16,17 @@ on:
         description: 'Config overrides (JSON)'
         required: false
 
+permissions:
+  contents: read
+
 env:
   WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
   
 jobs:
   prepare-data:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       data_hash: ${{ steps.data.outputs.hash }}
     steps:
@@ -45,6 +50,8 @@ jobs:
   train:
     needs: prepare-data
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     # For actual GPU training, use: runs-on: [self-hosted, gpu]
     steps:
       - uses: actions/checkout@v4
@@ -76,6 +83,8 @@ jobs:
   evaluate:
     needs: train
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       
@@ -109,6 +118,8 @@ jobs:
     needs: evaluate
     if: success()
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       
