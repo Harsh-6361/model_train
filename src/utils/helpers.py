@@ -133,3 +133,89 @@ def get_class_weights(labels: Union[List[int], np.ndarray]) -> torch.Tensor:
     # Inverse frequency weighting
     weights = len(labels) / (len(unique_classes) * class_counts)
     return torch.FloatTensor(weights)
+
+
+def train_val_test_split(
+    X: Any,
+    y: Any,
+    train_ratio: float = 0.7,
+    val_ratio: float = 0.15,
+    test_ratio: float = 0.15,
+    random_state: int = 42,
+    stratify: bool = True
+) -> Dict[str, tuple]:
+    """Split data into train, validation, and test sets.
+    
+    This is a generic utility function for splitting data that avoids
+    code duplication across different adapters.
+    
+    Args:
+        X: Features/data to split
+        y: Labels/targets to split
+        train_ratio: Ratio for training set
+        val_ratio: Ratio for validation set
+        test_ratio: Ratio for test set
+        random_state: Random seed for reproducibility
+        stratify: Whether to use stratified splitting
+        
+    Returns:
+        Dictionary with 'train', 'val', 'test' splits as (X, y) tuples
+        
+    Raises:
+        ValueError: If ratios don't sum to 1.0
+    """
+    from sklearn.model_selection import train_test_split
+    
+    if not np.isclose(train_ratio + val_ratio + test_ratio, 1.0):
+        raise ValueError("Split ratios must sum to 1.0")
+    
+    # Determine stratification
+    stratify_arg = None
+    if stratify and y is not None:
+        try:
+            # Only stratify if we have reasonable number of samples per class
+            unique_labels = np.unique(y)
+            if len(unique_labels) < 20:
+                stratify_arg = y
+        except (TypeError, ValueError):
+            pass
+    
+    # First split: train and temp (val + test)
+    temp_ratio = val_ratio + test_ratio
+    X_train, X_temp, y_train, y_temp = train_test_split(
+        X, y,
+        test_size=temp_ratio,
+        random_state=random_state,
+        stratify=stratify_arg
+    )
+    
+    # Second split: val and test
+    if test_ratio > 0:
+        val_ratio_adjusted = val_ratio / temp_ratio
+        
+        # Determine stratification for second split
+        stratify_arg_temp = None
+        if stratify and y_temp is not None:
+            try:
+                unique_labels = np.unique(y_temp)
+                if len(unique_labels) < 20:
+                    stratify_arg_temp = y_temp
+            except (TypeError, ValueError):
+                pass
+        
+        X_val, X_test, y_val, y_test = train_test_split(
+            X_temp, y_temp,
+            test_size=(1 - val_ratio_adjusted),
+            random_state=random_state,
+            stratify=stratify_arg_temp
+        )
+    else:
+        X_val, y_val = X_temp, y_temp
+        X_test, y_test = None, None
+    
+    return {
+        'train': (X_train, y_train),
+        'val': (X_val, y_val),
+        'test': (X_test, y_test)
+    }
+

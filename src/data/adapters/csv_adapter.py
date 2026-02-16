@@ -4,9 +4,9 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
 from ..validators.schema_validator import SchemaValidator
+from ...utils.helpers import train_val_test_split
 
 
 class CSVAdapter:
@@ -121,38 +121,23 @@ class CSVAdapter:
         Raises:
             ValueError: If ratios don't sum to 1.0
         """
-        if not np.isclose(train_ratio + val_ratio + test_ratio, 1.0):
-            raise ValueError("Split ratios must sum to 1.0")
-        
         features, target = self.get_features_and_target()
         
-        # First split: train and temp (val + test)
-        temp_ratio = val_ratio + test_ratio
-        X_train, X_temp, y_train, y_temp = train_test_split(
+        # Use common split utility
+        splits = train_val_test_split(
             features, target,
-            test_size=temp_ratio,
+            train_ratio=train_ratio,
+            val_ratio=val_ratio,
+            test_ratio=test_ratio,
             random_state=random_state,
-            stratify=target if target is not None and len(target.unique()) < 20 else None
+            stratify=True
         )
         
-        # Second split: val and test
-        if test_ratio > 0:
-            val_ratio_adjusted = val_ratio / temp_ratio
-            X_val, X_test, y_val, y_test = train_test_split(
-                X_temp, y_temp,
-                test_size=(1 - val_ratio_adjusted),
-                random_state=random_state,
-                stratify=y_temp if y_temp is not None and len(y_temp.unique()) < 20 else None
-            )
-        else:
-            X_val, y_val = X_temp, y_temp
-            X_test, y_test = pd.DataFrame(), None
+        # Handle empty test set case
+        if splits['test'][0] is None:
+            splits['test'] = (pd.DataFrame(), None)
         
-        return {
-            'train': (X_train, y_train),
-            'val': (X_val, y_val),
-            'test': (X_test, y_test)
-        }
+        return splits
     
     def get_info(self) -> Dict[str, Any]:
         """Get information about the loaded data.
