@@ -1,0 +1,89 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Model artifacts
+artifacts/models/*
+!artifacts/models/.gitkeep
+artifacts/checkpoints/*
+!artifacts/checkpoints/.gitkeep
+artifacts/predictions/*
+!artifacts/predictions/.gitkeep
+artifacts/evaluation/*
+!artifacts/evaluation/.gitkeep
+artifacts/logs/*
+!artifacts/logs/.gitkeep
+artifacts/tensorboard/*
+!artifacts/tensorboard/.gitkeep
+artifacts/deployed/*
+!artifacts/deployed/.gitkeep
+
+# Data
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/test/*
+!data/test/.gitkeep
+
+# DVC
+.dvc/cache
+.dvc/tmp
+artifacts/dvc-storage/*
+
+# Weights & Biases
+wandb/
+
+# MLflow
+mlruns/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+.cache/
