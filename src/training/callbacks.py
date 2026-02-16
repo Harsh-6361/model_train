@@ -185,23 +185,27 @@ class ModelCheckpoint(Callback):
 class MetricsLogger(Callback):
     """Metrics logging callback."""
     
-    def __init__(self, log_dir: Union[str, Path], log_interval: int = 10):
+    def __init__(self, log_dir: Union[str, Path], log_interval: int = 10, save_interval: int = 5):
         """Initialize metrics logger.
         
         Args:
             log_dir: Directory to save metrics
             log_interval: Interval for logging batches
+            save_interval: Interval for saving metrics to disk (epochs)
         """
         self.log_dir = Path(log_dir)
         self.log_interval = log_interval
+        self.save_interval = save_interval
         self.log_dir.mkdir(parents=True, exist_ok=True)
         
         self.metrics_file = self.log_dir / "metrics.json"
         self.epoch_metrics: Dict[str, Any] = {}
+        self._epochs_since_save = 0
     
     def on_train_begin(self, trainer: Any) -> None:
         """Initialize metrics file."""
         self.epoch_metrics = {'epochs': []}
+        self._epochs_since_save = 0
     
     def on_epoch_end(self, epoch: int, metrics: Dict[str, float], trainer: Any) -> None:
         """Log epoch metrics."""
@@ -210,10 +214,13 @@ class MetricsLogger(Callback):
             'metrics': metrics
         }
         self.epoch_metrics['epochs'].append(epoch_data)
+        self._epochs_since_save += 1
         
-        # Save to file
-        with open(self.metrics_file, 'w') as f:
-            json.dump(self.epoch_metrics, f, indent=2)
+        # Save to file periodically or on final epoch
+        if self._epochs_since_save >= self.save_interval or epoch == trainer.epochs - 1:
+            with open(self.metrics_file, 'w') as f:
+                json.dump(self.epoch_metrics, f, indent=2)
+            self._epochs_since_save = 0
         
         # Log to console
         metrics_str = ', '.join([f"{k}: {v:.4f}" for k, v in metrics.items()])
@@ -223,6 +230,12 @@ class MetricsLogger(Callback):
         """Log batch loss."""
         if batch_idx % self.log_interval == 0:
             logger.debug(f"Batch {batch_idx}: loss = {loss:.4f}")
+    
+    def on_train_end(self, trainer: Any) -> None:
+        """Save final metrics on training end."""
+        if self._epochs_since_save > 0:
+            with open(self.metrics_file, 'w') as f:
+                json.dump(self.epoch_metrics, f, indent=2)
 
 
 class CallbackList:

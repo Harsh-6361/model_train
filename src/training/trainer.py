@@ -163,18 +163,19 @@ class Trainer:
                     probs = torch.softmax(outputs, dim=1)
                     preds = torch.argmax(probs, dim=1)
                     
-                    # Store for metrics
-                    all_preds.extend(preds.cpu().numpy())
-                    all_targets.extend(targets.cpu().numpy())
-                    all_probs.extend(probs.cpu().numpy())
+                    # Store for metrics - use tensors for efficiency
+                    all_preds.append(preds)
+                    all_targets.append(targets)
+                    all_probs.append(probs)
         
         # Calculate metrics
         metrics = {'val_loss': total_loss / len(loader)}
         
         if all_targets:
-            all_preds = np.array(all_preds)
-            all_targets = np.array(all_targets)
-            all_probs = np.array(all_probs)
+            # Concatenate tensors on GPU, then convert to numpy once
+            all_preds = torch.cat(all_preds).cpu().numpy()
+            all_targets = torch.cat(all_targets).cpu().numpy()
+            all_probs = torch.cat(all_probs).cpu().numpy()
             
             # Calculate classification metrics
             calc_metrics = MetricsCalculator.calculate_all_metrics(

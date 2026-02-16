@@ -118,19 +118,29 @@ class ImageAdapter:
             results['warnings'].append("No schema provided, skipping validation")
             return results
         
-        # Validate each sampled image
+        # Validate each sampled image - optimized with early stopping
+        errors_found = []
+        warnings_found = []
+        
         for img_path in sample_paths:
             validation = self.validator.validate_image(img_path)
             
             if not validation['valid']:
                 results['valid'] = False
-                results['errors'].extend([
+                errors_found.extend([
                     f"{img_path.name}: {err}" for err in validation['errors']
                 ])
+                # Early stop if we have too many errors (sample is representative)
+                if len(errors_found) > 5:
+                    errors_found.append("... (additional errors truncated)")
+                    break
             
-            results['warnings'].extend([
+            warnings_found.extend([
                 f"{img_path.name}: {warn}" for warn in validation['warnings']
             ])
+        
+        results['errors'] = errors_found
+        results['warnings'] = warnings_found[:10]  # Limit warnings to keep output manageable
         
         return results
     
